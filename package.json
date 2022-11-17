@@ -1,0 +1,27 @@
+{
+  "name": "@yugutou/eslint-config",
+  "version": "1.0.0-rc",
+  "description": "",
+  "author": "yugutou (https://github.com/yugutou)",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "peerDependencies": {
+    "eslint": ">=7.4.0"
+  },
+  "keywords": [
+    "yugutou"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@antfu/eslint-config": "^0.31.0",
+    "@antfu/eslint-config-react": "^0.31.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.27.0"
+  }
+}

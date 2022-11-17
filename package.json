@@ -2,7 +2,8 @@
   "name": "@yugutou/eslint-config",
   "version": "1.0.0-rc",
   "description": "",
-  "author": "yugutou (https://github.com/yugutou)",
+  "author": "yugutou (https://github.com/wjyugutou)",
+  "homepage": "https://github.com/wjyugutou/eslint-config",
   "main": "index.js",
   "files": [
     "index.js"

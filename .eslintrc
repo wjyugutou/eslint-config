@@ -1,3 +1,3 @@
 {
-  "extends": ["@yugutou"]
+  "extends": ["./index.js"]
 }

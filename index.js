@@ -1,10 +1,9 @@
-console.log(111)
-
-export default {
+module.exports = {
   extends: [
     '@antfu/eslint-config',
     '@antfu/eslint-config-react',
   ],
-  rules:{ 
-  }
+  rules: {
+    'no-console': 'off',
+  },
 }

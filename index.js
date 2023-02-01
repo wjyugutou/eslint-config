@@ -5,6 +5,5 @@ module.exports = {
   rules: {
     'no-console': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
-
   },
 }

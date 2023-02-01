@@ -13,9 +13,7 @@
     "index.js"
   ],
   "scripts": {
-    "lint": "eslint --fix .",
-    "pb": "node ./publish.js",
-    "release": "release-it"
+    "lint": "eslint --fix ."
   },
   "peerDependencies": {
     "eslint": ">=7.4.0"

@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^5.1.1",
-    "eslint": "^8.37.0",
-    "release-it": "^15.9.3",
+    "eslint": "^8.38.0",
+    "release-it": "^15.10.1",
     "typescript": "^4.9.5"
   }
 }

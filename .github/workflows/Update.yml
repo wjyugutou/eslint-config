@@ -1,5 +1,5 @@
 # name，也就是当前 workflow 的名称
-name: publish-eslint-config
+name: Update
 
 on:
   push:

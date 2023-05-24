@@ -23,6 +23,12 @@ jobs:
         with:
           node-version: '16.x'
  
+      - name: Update package.json version
+        run: 
+          echo "{path}" >> $GITHUB_PATH
+          echo ::set-env name=RELEASE_VERSION::${GITHUB_REF:10}
+          node ${{path}}/updateVersion.js --${{env.RELEASE_VERSION}}
+
       - name: Publish to NPM  # 推送到 NPM 上
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN

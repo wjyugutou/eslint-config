@@ -16,4 +16,4 @@ jobs:
 
       - name: Update package.json version
         run:
-          node ./updateVersion.js --${{env.TAG}}
+          node ${{HOME}}/updateVersion.js --${{env.TAG}}

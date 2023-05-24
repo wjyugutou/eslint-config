@@ -18,7 +18,7 @@ jobs:
       - name: Checkout    # 获取分支的代码和提交记录
         uses: actions/checkout@v2
 
-      - name: Setup Node.js v14.x # 设置 Node.js 的环境
+      - name: Setup Node.js v16.x # 设置 Node.js 的环境
         uses: actions/setup-node@v1
         with:
           node-version: '16.x'

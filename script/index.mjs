@@ -105,7 +105,7 @@ function gitPushTag(version) {
         exec(`git push origin v${version}`, (err3, stdout, stderr) => {
           if (err3) {
             console.error('git push tag', err3)
-            return reject(err2)
+            return reject(err3)
           }
         })
         resolve('success')

@@ -105,6 +105,7 @@ function gitPushTag(version) {
             if (err3)
               return reject(err3)
           })
+          console.log(`success release v${version}`)
           resolve('success')
         })
       })

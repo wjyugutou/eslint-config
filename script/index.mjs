@@ -88,7 +88,6 @@ function gitPushTag(version) {
       return reject(new Error('gitCommit version 不存在'))
 
     exec('git tag ', (err, stdout) => {
-      console.log()
       if (err)
         return reject(err)
       if (stdout.includes('1.2.5'))

@@ -31,46 +31,109 @@ const compareVersion = function (version1, version2) {
   }
 }
 
-function test() {
-  const data = fs.readFileSync('./package.json', 'utf-8')
-  const version = process.argv[2].replace('--v', '')
+function checkVersion(version) {
+  return new Promise((resolve, reject) => {
+    const data = fs.readFileSync('./package.json', 'utf-8')
 
-  if (!version)
-    return console.error('缺少 --v 参数')
-
-  const packageText = JSON.parse(data)
-
-  if (compareVersion(version, packageText.version) !== 1)
-    return console.error('发布版本号小于当前版本', version, packageText.version, compareVersion(version, packageText.version))
-
-  packageText.version = version
-  const newText = JSON.stringify(packageText)
-  fs.writeFileSync('./package.json', newText)
-
-  exec('git add .', (err, stdout, stderr) => {
-    if (err) {
-      console.error('git add', err)
-      return
+    if (!version) {
+      console.error('缺少 --v 参数')
+      reject(new Error('缺少 --v 版本参数'))
     }
-    exec(`git commit -m "release v${version}"`, (err, stdout, stderr) => {
+
+    const packageText = JSON.parse(data)
+
+    if (compareVersion(version, packageText.version) !== 1) {
+      console.error(`发布版本号 ${version}小于当前版本 ${packageText.version}`)
+      reject(new Error('发布版本号小于当前版本'))
+    }
+
+    packageText.version = version
+    const newText = JSON.stringify(packageText)
+    fs.writeFileSync('./package.json', newText)
+    resolve('success')
+  })
+}
+
+function gitCommit(version) {
+  return new Promise((resolve, reject) => {
+    exec('git add .', (err, stdout, stderr) => {
       if (err) {
-        console.error('git commit', err)
-        return
+        console.error('git add', err)
+        reject(err)
+      }
+      exec(`git commit -m "release v${version}"`, (err, stdout, stderr) => {
+        if (err) {
+          console.error('git commit', err)
+          reject(err)
+        }
+        resolve('success')
+      })
+    })
+  })
+}
+
+function gitPushTag(version) {
+  return Promise((resolve, reject) => {
+    exec('git push ', (err1, stdout, stderr) => {
+      if (err1) {
+        console.error(err1)
+        reject(err1)
       }
 
-      exec('git push ', (err, stdout, stderr) => {
-        if (err) {
-          console.error('git push', err)
-          return
+      exec(`git tag -a v${version} -m "my version ${version}"`, (err2, stdout, stderr) => {
+        if (err2) {
+          console.error(err2)
+          reject(err2)
         }
 
-        exec(`git push origin v${version}`, (err, stdout, stderr) => {
-          if (err)
-            return console.error('git push tag', err)
+        exec(`git push origin v${version}`, (err3, stdout, stderr) => {
+          if (err3) {
+            console.error('git push tag', err3)
+            reject(err2)
+          }
         })
       })
     })
   })
 }
 
-test()
+function checkGitStatus() {
+  return new Promise((resolve, reject) => {
+    exec('git status', (error, stdout, stderr) => {
+      if (error) {
+        console.error(error)
+        reject(error)
+      }
+      if (stdout.includes('Your branch is up to date'))
+        resolve('success')
+
+      else
+        reject(new Error('Your branch is ahead'))
+    })
+  })
+}
+
+async function run() {
+  const version = process.argv[2].replace('--v', '')
+  try {
+    const checkVersionFlag = await checkVersion(version)
+
+    if (checkVersionFlag === 'success') {
+      const hasStatus = await checkGitStatus()
+      if (hasStatus === 'success') {
+        const commitState = await gitCommit()
+        if (commitState === 'success') {
+          const a = await gitPushTag(version)
+        }
+      }
+      else {
+        const a = await gitPushTag(version)
+      }
+    }
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
+
+run()

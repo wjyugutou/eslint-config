@@ -5,10 +5,6 @@ function test() {
   const data = fs.readFileSync('./package.json', 'utf-8')
   const version = process.argv[2].replace('--v', '')
 
-  console.log('============')
-  console.log(version)
-  console.log('============')
-
   if (!version)
     return console.error('缺少 --v 参数')
 
@@ -19,23 +15,25 @@ function test() {
 
   exec('git add .', (err, stdout, stderr) => {
     if (err) {
-      console.error(err)
+      console.error('git add', err)
       return
     }
     exec(`git commit -m "release v${version}"`, (err, stdout, stderr) => {
       if (err) {
-        console.error(err)
+        console.error('git commit', err)
         return
       }
 
       exec('git push ', (err, stdout, stderr) => {
-        if (err)
-          console.error(err)
-      })
+        if (err) {
+          console.error('git push', err)
+          return
+        }
 
-      exec(`git push origin v${version}`, (err, stdout, stderr) => {
-        if (err)
-          console.error(err)
+        exec(`git push origin v${version}`, (err, stdout, stderr) => {
+          if (err)
+            console.error('git push tag', err)
+        })
       })
     })
   })

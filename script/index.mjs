@@ -37,19 +37,16 @@ function checkVersion(version) {
   return new Promise((resolve, reject) => {
     const data = fs.readFileSync('./package.json', 'utf-8')
 
-    if (!version) {
-      console.error('缺少 --v 参数')
+    if (!version)
       return reject(new Error('缺少 --v 版本参数'))
-    }
 
     const packageText = JSON.parse(data)
 
     lastVersion = packageText.version
 
-    if (compareVersion(version, packageText.version) !== 1) {
-      console.error(`发布版本号 ${version}小于当前版本 ${packageText.version}`)
-      return reject(new Error('发布版本号小于当前版本'))
-    }
+    if (compareVersion(version, packageText.version) !== 1)
+      return reject(new Error(`发布版本号 ${version}小于当前版本 ${packageText.version}`))
+
     packageText.version = version
     const newText = JSON.stringify(packageText)
     fs.writeFileSync('./package.json', newText)
@@ -72,15 +69,13 @@ function gitCommit(version) {
       return reject(new Error('gitCommit version 不存在'))
 
     exec('git add .', (err, stdout, stderr) => {
-      if (err) {
-        console.error('git add', err)
+      if (err)
         return reject(err)
-      }
+
       exec(`git commit -m "release v${version}"`, (err, stdout, stderr) => {
-        if (err) {
-          console.error('git commit', err)
+        if (err)
           return reject(err)
-        }
+
         resolve('success')
       })
     })
@@ -91,27 +86,28 @@ function gitPushTag(version) {
   return new Promise((resolve, reject) => {
     if (!version)
       return reject(new Error('gitCommit version 不存在'))
-    exec('git push ', (err1, stdout, stderr) => {
-      if (err1) {
-        console.error(err1)
-        return reject(err1)
-      }
 
-      exec(`git tag -a v${version} -m "my version ${version}"`, (err2, stdout, stderr) => {
-        if (err2) {
-          console.error(err2)
-          console.log(err2.includes('already exists'))
-          console.log('===============================')
-          return reject(err2)
-        }
+    exec('git tag ', (err, stdout) => {
+      console.log()
+      if (err)
+        return reject(err)
+      if (stdout.includes('1.2.5'))
+        return reject(new Error(`版本 ${version} 已存在`))
 
-        exec(`git push origin v${version}`, (err3, stdout, stderr) => {
-          if (err3) {
-            console.error('git push tag', err3)
-            return reject(err3)
-          }
+      exec('git push ', (err1, stdout, stderr) => {
+        if (err1)
+          return reject(err1)
+
+        exec(`git tag -a v${version} -m "release tag v${version}"`, (err2, stdout, stderr) => {
+          if (err2)
+            return reject(err2)
+
+          exec(`git push origin v${version}`, (err3, stdout, stderr) => {
+            if (err3)
+              return reject(err3)
+          })
+          resolve('success')
         })
-        resolve('success')
       })
     })
   })
@@ -120,10 +116,9 @@ function gitPushTag(version) {
 function checkGitStatus() {
   return new Promise((resolve, reject) => {
     exec('git status', (error, stdout, stderr) => {
-      if (error) {
-        console.error(error)
+      if (error)
         return reject(error)
-      }
+
       if (stdout.includes('Your branch is up to date'))
         resolve('success')
 

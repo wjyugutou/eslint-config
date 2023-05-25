@@ -44,11 +44,12 @@ function checkVersion(version) {
 
     const packageText = JSON.parse(data)
 
+    lastVersion = packageText.version
+
     if (compareVersion(version, packageText.version) !== 1) {
       console.error(`发布版本号 ${version}小于当前版本 ${packageText.version}`)
       return reject(new Error('发布版本号小于当前版本'))
     }
-    lastVersion = packageText.version
     packageText.version = version
     const newText = JSON.stringify(packageText)
     fs.writeFileSync('./package.json', newText)
@@ -99,6 +100,8 @@ function gitPushTag(version) {
       exec(`git tag -a v${version} -m "my version ${version}"`, (err2, stdout, stderr) => {
         if (err2) {
           console.error(err2)
+          console.log(err2.includes('already exists'))
+          console.log('===============================')
           return reject(err2)
         }
 

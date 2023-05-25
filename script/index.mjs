@@ -1,6 +1,8 @@
 import { exec } from 'child_process'
 import fs from 'fs'
 
+let lastVersion = ''
+
 /**
  * @param {string} version1
  * @param {string} version2
@@ -37,16 +39,16 @@ function checkVersion(version) {
 
     if (!version) {
       console.error('缺少 --v 参数')
-      reject(new Error('缺少 --v 版本参数'))
+      return reject(new Error('缺少 --v 版本参数'))
     }
 
     const packageText = JSON.parse(data)
 
     if (compareVersion(version, packageText.version) !== 1) {
       console.error(`发布版本号 ${version}小于当前版本 ${packageText.version}`)
-      reject(new Error('发布版本号小于当前版本'))
+      return reject(new Error('发布版本号小于当前版本'))
     }
-
+    lastVersion = packageText.version
     packageText.version = version
     const newText = JSON.stringify(packageText)
     fs.writeFileSync('./package.json', newText)
@@ -54,17 +56,29 @@ function checkVersion(version) {
   })
 }
 
+/** 报错 回滚package.json版本 */
+function RollBACKVersion() {
+  const data = fs.readFileSync('./package.json', 'utf-8')
+  const packageText = JSON.parse(data)
+  packageText.version = lastVersion
+  const newText = JSON.stringify(packageText)
+  fs.writeFileSync('./package.json', newText)
+}
+
 function gitCommit(version) {
   return new Promise((resolve, reject) => {
+    if (!version)
+      return reject(new Error('gitCommit version 不存在'))
+
     exec('git add .', (err, stdout, stderr) => {
       if (err) {
         console.error('git add', err)
-        reject(err)
+        return reject(err)
       }
       exec(`git commit -m "release v${version}"`, (err, stdout, stderr) => {
         if (err) {
           console.error('git commit', err)
-          reject(err)
+          return reject(err)
         }
         resolve('success')
       })
@@ -73,25 +87,28 @@ function gitCommit(version) {
 }
 
 function gitPushTag(version) {
-  return Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    if (!version)
+      return reject(new Error('gitCommit version 不存在'))
     exec('git push ', (err1, stdout, stderr) => {
       if (err1) {
         console.error(err1)
-        reject(err1)
+        return reject(err1)
       }
 
       exec(`git tag -a v${version} -m "my version ${version}"`, (err2, stdout, stderr) => {
         if (err2) {
           console.error(err2)
-          reject(err2)
+          return reject(err2)
         }
 
         exec(`git push origin v${version}`, (err3, stdout, stderr) => {
           if (err3) {
             console.error('git push tag', err3)
-            reject(err2)
+            return reject(err2)
           }
         })
+        resolve('success')
       })
     })
   })
@@ -102,13 +119,13 @@ function checkGitStatus() {
     exec('git status', (error, stdout, stderr) => {
       if (error) {
         console.error(error)
-        reject(error)
+        return reject(error)
       }
       if (stdout.includes('Your branch is up to date'))
         resolve('success')
 
       else
-        reject(new Error('Your branch is ahead'))
+        resolve('Your branch is ahead')
     })
   })
 }
@@ -121,7 +138,7 @@ async function run() {
     if (checkVersionFlag === 'success') {
       const hasStatus = await checkGitStatus()
       if (hasStatus === 'success') {
-        const commitState = await gitCommit()
+        const commitState = await gitCommit(version)
         if (commitState === 'success') {
           const a = await gitPushTag(version)
         }
@@ -132,6 +149,7 @@ async function run() {
     }
   }
   catch (error) {
+    RollBACKVersion()
     console.error(error)
   }
 }

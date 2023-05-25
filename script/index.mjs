@@ -32,7 +32,7 @@ function test() {
 
         exec(`git push origin v${version}`, (err, stdout, stderr) => {
           if (err)
-            console.error('git push tag', err)
+            return console.error('git push tag', err)
         })
       })
     })

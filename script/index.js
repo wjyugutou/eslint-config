@@ -1,5 +1,6 @@
 import { exec } from 'node:child_process'
 import fs from 'node:fs'
+import process from 'node:process'
 
 let lastVersion = ''
 
@@ -129,11 +130,16 @@ function checkGitStatus() {
 }
 
 async function run() {
-  const version = process.argv[2].replace('--v', '')
-  try {
-    const checkVersionFlag = await checkVersion(version)
+  const version = process.argv.at(-1).replace('--v', '').replace('-v', '')
+  let force = false
 
-    if (checkVersionFlag === 'success') {
+  if (process.argv[2] === '-F' || process.argv[2] === '--force')
+    force = true
+
+  try {
+    const checkVersionFlag = await checkVersion(version, force)
+
+    if (checkVersionFlag === 'success' || force) {
       const hasStatus = await checkGitStatus()
       if (hasStatus === 'success') {
         const commitState = await gitCommit(version)

@@ -37,6 +37,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+playground/
 
 # TypeScript v1 declaration files
 typings/
@@ -78,3 +79,5 @@ dist
 .idea
 
 *.lerna_backup
+
+

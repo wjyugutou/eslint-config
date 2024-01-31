@@ -91,7 +91,6 @@ function gitPushTag() {
       return reject(new Error('gitCommit version 不存在'))
 
     exec('git tag ', (err, stdout) => {
-      console.log('stdout', stdout);
       if (err)
         return reject(err)
       if (stdout.includes(version))

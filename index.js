@@ -11,7 +11,7 @@ module.exports = {
       {
         ignoreWhenNoAttributes: true,
         ignoreWhenEmpty: true,
-        externalIgnores: ['button'],
+        externalIgnores: ['button', 'option'],
       },
     ],
   },

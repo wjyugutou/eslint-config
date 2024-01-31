@@ -91,9 +91,10 @@ function gitPushTag() {
       return reject(new Error('gitCommit version 不存在'))
 
     exec('git tag ', (err, stdout) => {
+      console.log('stdout', stdout);
       if (err)
         return reject(err)
-      if (stdout.includes('1.2.5'))
+      if (stdout.includes(version))
         return reject(new Error(`版本 ${version} 已存在`))
 
       exec('git push ', (err1, stdout, stderr) => {
